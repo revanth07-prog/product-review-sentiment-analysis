@@ -1,0 +1,50 @@
+{
+  "shape": [
+    189874,
+    5
+  ],
+  "columns": [
+    "ProductName",
+    "Price",
+    "Rate",
+    "Review",
+    "Summary"
+  ],
+  "missing_values": {
+    "ProductName": 0,
+    "Price": 1,
+    "Rate": 1,
+    "Review": 4,
+    "Summary": 14
+  },
+  "dtypes": {
+    "ProductName": "str",
+    "Price": "str",
+    "Rate": "str",
+    "Review": "str",
+    "Summary": "str"
+  },
+  "sample_head": [
+    {
+      "ProductName": "Candes 12 L Room/Personal Air Cooler?\u00ff?\u00ff(White, Black, Elegant High Speed-Honey Comb Cooling Pad & Ice Chamber, Blower)",
+      "Price": "\u0083??3,999",
+      "Rate": "5",
+      "Review": "Super!",
+      "Summary": "Great cooler.. excellent air flow and for this price. It's so amazing and unbelievable.Just love it \u0083\u009d?\u008b?\u008f"
+    },
+    {
+      "ProductName": "Candes 12 L Room/Personal Air Cooler?\u00ff?\u00ff(White, Black, Elegant High Speed-Honey Comb Cooling Pad & Ice Chamber, Blower)",
+      "Price": "\u0083??3,999",
+      "Rate": "5",
+      "Review": "Awesome",
+      "Summary": "Best budget 2 fit cooler. Nice cooling"
+    },
+    {
+      "ProductName": "Candes 12 L Room/Personal Air Cooler?\u00ff?\u00ff(White, Black, Elegant High Speed-Honey Comb Cooling Pad & Ice Chamber, Blower)",
+      "Price": "\u0083??3,999",
+      "Rate": "3",
+      "Review": "Fair",
+      "Summary": "The quality is good but the power of air is decent"
+    }
+  ]
+}

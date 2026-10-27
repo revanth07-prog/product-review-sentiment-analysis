@@ -1,0 +1,19 @@
+{
+  "max_vocab_size": 20000,
+  "max_sequence_length": 100,
+  "oov_token": "<OOV>",
+  "padding": "post",
+  "truncating": "post",
+  "classes": [
+    "negative",
+    "neutral",
+    "positive"
+  ],
+  "label_mapping": {
+    "negative": 0,
+    "neutral": 1,
+    "positive": 2
+  },
+  "num_classes": 3,
+  "total_words_indexed": 11164
+}

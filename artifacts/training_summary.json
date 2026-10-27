@@ -1,0 +1,23 @@
+{
+  "dataset_path": "c:\\Users\\revan\\Desktop\\flipkart_product.csv",
+  "total_dataset_rows": 189874,
+  "sampled_rows": 30000,
+  "train_rows": 20999,
+  "val_rows": 4500,
+  "test_rows": 4501,
+  "classification_mode": "multiclass",
+  "classes": [
+    "negative",
+    "neutral",
+    "positive"
+  ],
+  "max_vocab_size": 20000,
+  "effective_vocab_size": 11165,
+  "max_sequence_length": 100,
+  "embedding_dim": 100,
+  "lstm_units": 128,
+  "epochs_trained": 6,
+  "final_train_accuracy": 0.9706652760505676,
+  "final_val_accuracy": 0.9706666469573975,
+  "best_val_loss": 0.09053570032119751
+}

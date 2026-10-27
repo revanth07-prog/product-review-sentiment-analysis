@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Review Sentiment Analysis | LSTM + GloVe</title>
+  <meta name="description" content="Deep Learning Sentiment Analysis on Flipkart Product Reviews using an LSTM neural network initialized with pre-trained GloVe word embeddings.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            <path d="M8 10h.01"></path>
+            <path d="M12 10h.01"></path>
+            <path d="M16 10h.01"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">Sentix DL</span>
+          <span class="brand-subtitle">LSTM & GloVe Sentiment Analyzer</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu" id="navMenu">
+        <button class="nav-item active" data-target="home-section" id="navHome">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          Dashboard
+        </button>
+        <button class="nav-item" data-target="analyzer-section" id="navAnalyzer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+          Live Analyzer
+        </button>
+        <button class="nav-item" data-target="performance-section" id="navPerformance">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          Performance
+        </button>
+        <button class="nav-item" data-target="about-section" id="navAbout">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          About
+        </button>
+      </nav>
+
+      <div class="system-status" id="systemStatusBadge">
+        <span class="status-dot loading" id="statusDot"></span>
+        <span class="status-text" id="statusText">Checking Backend...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="main-container">
+
+    <!-- Global Notice Banner (e.g. if model needs training) -->
+    <div class="banner banner-warning hidden" id="modelWarningBanner">
+      <div class="banner-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      </div>
+      <div class="banner-content">
+        <strong>Model Status:</strong>
+        <span id="modelBannerText">Model artifacts not detected. Run <code>python -m src.train</code> in terminal to train the LSTM network.</span>
+      </div>
+    </div>
+
+    <!-- SECTION 1: HOME / DASHBOARD -->
+    <section class="page-section active" id="home-section">
+      <div class="hero-card">
+        <div class="hero-badge">Deep Learning &bull; Natural Language Processing</div>
+        <h1 class="hero-title">Product Review Sentiment Analysis Using LSTM with GloVe Embeddings</h1>
+        <p class="hero-description">
+          An end-to-end deep learning NLP system that predicts consumer sentiment from unstructured e-commerce product reviews. Built with recurrent Long Short-Term Memory (LSTM) networks initialized with Stanford pre-trained GloVe word embeddings on Flipkart customer reviews.
+        </p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="navigateToSection('analyzer-section')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            Open Live Review Analyzer
+          </button>
+          <button class="btn btn-secondary" onclick="navigateToSection('performance-section')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            View Model Metrics & Charts
+          </button>
+        </div>
+      </div>
+
+      <!-- Overview Cards -->
+      <div class="dashboard-grid">
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Model Architecture</span>
+            <div class="stat-icon-wrapper blue">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+            </div>
+          </div>
+          <div class="stat-value">LSTM + GloVe</div>
+          <div class="stat-subtext">Word vectors (100d) &bull; LSTM (128 units) &bull; Dense &bull; Softmax</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Dataset Source</span>
+            <div class="stat-icon-wrapper purple">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            </div>
+          </div>
+          <div class="stat-value">Flipkart Reviews</div>
+          <div class="stat-subtext">189,874 real verified e-commerce buyer reviews</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Sentiment Classes</span>
+            <div class="stat-icon-wrapper green">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+            </div>
+          </div>
+          <div class="stat-value">3 Categories</div>
+          <div class="stat-subtext">Negative (1-2★) &bull; Neutral (3★) &bull; Positive (4-5★)</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Inference Engine</span>
+            <div class="stat-icon-wrapper amber">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            </div>
+          </div>
+          <div class="stat-value" id="engineStatusVal">TensorFlow/Keras</div>
+          <div class="stat-subtext" id="engineStatusSub">Flask REST API &bull; Sub-50ms latency</div>
+        </div>
+      </div>
+
+      <!-- Quick Pipeline Walkthrough -->
+      <div class="card mt-6">
+        <h2 class="card-title">Project Execution Pipeline</h2>
+        <div class="pipeline-steps">
+          <div class="step-item">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h4>Dataset Ingestion</h4>
+              <p>Loads 189k Flipkart reviews, parses rating columns, normalizes text, strips noise, and stratifies partitions.</p>
+            </div>
+          </div>
+          <div class="step-arrow">&rarr;</div>
+          <div class="step-item">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h4>GloVe Alignment</h4>
+              <p>Maps 400k pre-trained Stanford 100-dimensional semantic vectors to fitted training vocabulary indices.</p>
+            </div>
+          </div>
+          <div class="step-arrow">&rarr;</div>
+          <div class="step-item">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h4>LSTM Training</h4>
+              <p>Sequential modeling with dropout regularization, Adam optimizer, early stopping, and checkpointing.</p>
+            </div>
+          </div>
+          <div class="step-arrow">&rarr;</div>
+          <div class="step-item">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <h4>Live Inference</h4>
+              <p>Fast Flask API endpoint processing live review text into class probabilities and confidence scores.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- SECTION 2: LIVE SENTIMENT ANALYZER -->
+    <section class="page-section" id="analyzer-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Live Review Sentiment Analyzer</h2>
+          <p class="section-desc">Enter any custom product review or select an example below to inspect the LSTM's sentiment classification and prediction probabilities.</p>
+        </div>
+      </div>
+
+      <div class="analyzer-layout">
+        <!-- Input Column -->
+        <div class="analyzer-col">
+          <div class="card">
+            <div class="card-header-flex">
+              <label for="reviewInput" class="form-label">Product Review Input</label>
+              <span class="char-count" id="charCounter">0 characters</span>
+            </div>
+
+            <textarea
+              id="reviewInput"
+              class="textarea-input"
+              rows="6"
+              placeholder="Type or paste a product review here... (e.g. 'The sound clarity is brilliant, bass is punchy and build quality feels truly premium!')"
+            ></textarea>
+
+            <div class="button-group mt-4">
+              <button class="btn btn-primary" id="btnPredict" onclick="handlePredictSentiment()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+                Predict Sentiment
+              </button>
+              <button class="btn btn-secondary" id="btnClear" onclick="handleClearInput()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                Clear
+              </button>
+            </div>
+
+            <!-- Example Reviews -->
+            <div class="mt-6">
+              <label class="form-label">Try Example Reviews:</label>
+              <div class="example-chips">
+                <button class="chip" onclick="loadExampleReview('The product quality is excellent and delivery was fast.')">
+                  🌟 "Excellent quality and fast delivery"
+                </button>
+                <button class="chip" onclick="loadExampleReview('Great cooler.. excellent air flow and for this price it is awesome.')">
+                  👍 "Great cooler.. excellent air flow"
+                </button>
+                <button class="chip" onclick="loadExampleReview('Very bad product it is only a fan, useless product.')">
+                  👎 "Very bad product, useless product"
+                </button>
+                <button class="chip" onclick="loadExampleReview('Ok ok product, build quality is fair but not extraordinary.')">
+                  ⚖️ "Ok ok product, build quality is fair"
+                </button>
+                <button class="chip" onclick="loadExampleReview('Terrible experience, stopped working within 3 days and customer service is unresponsive.')">
+                  ⚠️ "Terrible experience, stopped working"
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prediction Result Column -->
+        <div class="analyzer-col">
+          <div class="card result-card" id="resultCard">
+            <h3 class="card-title">Prediction Result</h3>
+
+            <!-- Placeholder State -->
+            <div class="empty-state" id="resultPlaceholder">
+              <div class="empty-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path></svg>
+              </div>
+              <p class="empty-title">Awaiting Review Input</p>
+              <p class="empty-desc">Enter a review on the left and click "Predict Sentiment" to view the deep learning model's confidence and class probabilities.</p>
+            </div>
+
+            <!-- Loading State -->
+            <div class="loading-state hidden" id="resultLoading">
+              <div class="spinner"></div>
+              <p class="mt-4 font-semibold">Running LSTM inference with GloVe embeddings...</p>
+            </div>
+
+            <!-- Error State -->
+            <div class="error-box hidden" id="resultError">
+              <div class="error-title" id="errorTitle">Prediction Error</div>
+              <div class="error-message" id="errorMessage">Unable to obtain prediction from API.</div>
+            </div>
+
+            <!-- Actual Result Display -->
+            <div class="result-display hidden" id="resultDisplay">
+              <!-- Sentiment Badge & Confidence -->
+              <div class="sentiment-badge-row">
+                <div class="sentiment-badge" id="sentimentBadge">
+                  <span id="sentimentIcon"></span>
+                  <span id="sentimentLabel">Positive</span>
+                </div>
+                <div class="confidence-box">
+                  <span class="confidence-label">Model Confidence</span>
+                  <span class="confidence-val" id="confidenceValue">95.4%</span>
+                </div>
+              </div>
+
+              <!-- Cleaned Text Accordion -->
+              <div class="cleaned-text-box mt-4">
+                <span class="cleaned-title">Cleaned & Normalized Input:</span>
+                <p class="cleaned-content" id="cleanedTextOutput"></p>
+              </div>
+
+              <!-- Probability Distribution Bars -->
+              <div class="mt-6">
+                <h4 class="prob-section-title">Class Probability Distribution</h4>
+                <div class="prob-bars-container" id="probabilityBars">
+                  <!-- Injected via JavaScript -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- SECTION 3: MODEL PERFORMANCE -->
+    <section class="page-section" id="performance-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Model Performance & Evaluation</h2>
+          <p class="section-desc">Actual empirical metrics and evaluation visualizations computed on the held-out test split of Flipkart reviews.</p>
+        </div>
+        <button class="btn btn-secondary" onclick="fetchMetrics(true)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+          Refresh Metrics
+        </button>
+      </div>
+
+      <!-- Real Metrics Numbers Grid -->
+      <div class="metrics-grid" id="metricsGrid">
+        <div class="metric-card">
+          <div class="metric-title">Test Accuracy</div>
+          <div class="metric-number text-blue" id="metricAccuracy">--</div>
+          <div class="metric-subtitle">Overall correct predictions on test set</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-title">Macro Precision</div>
+          <div class="metric-number text-purple" id="metricPrecision">--</div>
+          <div class="metric-subtitle">Unweighted average precision across classes</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-title">Macro Recall</div>
+          <div class="metric-number text-amber" id="metricRecall">--</div>
+          <div class="metric-subtitle">Unweighted average recall across classes</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-title">Macro F1-Score</div>
+          <div class="metric-number text-green" id="metricF1">--</div>
+          <div class="metric-subtitle">Harmonic mean accounting for class imbalance</div>
+        </div>
+      </div>
+
+      <!-- Per-Class Metrics Table -->
+      <div class="card mt-6" id="perClassCard">
+        <h3 class="card-title">Per-Class Detailed Performance</h3>
+        <div class="table-responsive">
+          <table class="data-table" id="perClassTable">
+            <thead>
+              <tr>
+                <th>Class</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1-Score</th>
+                <th>Test Support (Samples)</th>
+              </tr>
+            </thead>
+            <tbody id="perClassTableBody">
+              <tr><td colspan="5" class="text-center">Loading evaluation metrics...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Evaluation Visualizations Grid -->
+      <div class="charts-grid mt-6">
+        <div class="card chart-card">
+          <h3 class="card-title">Confusion Matrix (Held-out Test Set)</h3>
+          <div class="chart-wrapper" id="cmWrapper">
+            <img src="/api/artifacts/confusion_matrix.png" alt="Confusion Matrix" class="chart-img" onerror="handleImageError(this, 'Confusion matrix will appear here after running python -m src.evaluate.')">
+          </div>
+        </div>
+
+        <div class="card chart-card">
+          <h3 class="card-title">Training & Validation Curves</h3>
+          <div class="chart-wrapper" id="historyWrapper">
+            <img src="/api/artifacts/training_history.png" alt="Training Curves" class="chart-img" onerror="handleImageError(this, 'Training curves will appear here after running python -m src.train.')">
+          </div>
+        </div>
+
+        <div class="card chart-card full-width">
+          <h3 class="card-title">Dataset Sentiment Class Distribution</h3>
+          <div class="chart-wrapper" id="distWrapper">
+            <img src="/api/artifacts/class_distribution.png" alt="Class Distribution" class="chart-img" onerror="handleImageError(this, 'Class distribution plot will appear here after running dataset loading.')">
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- SECTION 4: ABOUT PROJECT -->
+    <section class="page-section" id="about-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">About This Project</h2>
+          <p class="section-desc">Technical specification, architecture, theoretical foundation, and methodology.</p>
+        </div>
+      </div>
+
+      <div class="about-grid">
+        <div class="card">
+          <h3 class="card-title">1. Problem Statement & Objectives</h3>
+          <p>E-commerce product reviews provide invaluable consumer feedback but are predominantly unstructured, noisy, and imbalanced. The objective is to construct an end-to-end deep learning system that autonomously cleans product reviews, aligns words with semantic vector representations, captures sequential context via an LSTM network, and delivers real-time sentiment predictions through an interactive web interface.</p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">2. Flipkart Reviews Dataset</h3>
+          <p>Sourced from Kaggle containing over 189,000 real Flipkart product reviews. Reviews contain product titles, review headers, detailed descriptions, and numerical star ratings (1 to 5 stars). The pipeline cleans invalid rows, combines review headers with description bodies, removes duplicates, and maps ratings to sentiment labels (1-2★ Negative, 3★ Neutral, 4-5★ Positive).</p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">3. Stanford GloVe Word Embeddings</h3>
+          <p>Global Vectors for Word Representation (GloVe) maps words into a continuous 100-dimensional vector space based on global word-word co-occurrence statistics from Wikipedia and Gigaword. Utilizing pre-trained GloVe vectors grants the model rich semantic understanding and synoymous relationships even before domain training commences.</p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">4. LSTM Neural Network Architecture</h3>
+          <p>Long Short-Term Memory networks overcome the vanishing gradient problem in traditional Recurrent Neural Networks (RNNs) using input, forget, and output gating mechanisms. This enables the model to retain long-range dependencies, contextual negations (such as <em>"not good at all"</em>), and contrastive clauses across the review text.</p>
+        </div>
+      </div>
+
+      <div class="card mt-6">
+        <h3 class="card-title">5. Methodology & Training Details</h3>
+        <div class="methodology-list">
+          <div class="method-item">
+            <strong>Preprocessing:</strong> HTML stripping, contraction expansion (e.g. <em>"can't"</em> &rarr; <em>"can not"</em>), URL removal, punctuation cleaning, lowercasing, and Keras tokenization with post-padding.
+          </div>
+          <div class="method-item">
+            <strong>Vocabulary Alignment:</strong> The embedding matrix maps vocabulary indices to GloVe vectors. Unseen domain-specific words are assigned initialized vectors while padding tokens are masked at index 0.
+          </div>
+          <div class="method-item">
+            <strong>Regularization:</strong> Dropout layers (rate = 0.3) after both LSTM and Dense feature layers prevent overfitting on frequent vocabulary tokens.
+          </div>
+          <div class="method-item">
+            <strong>Loss & Optimization:</strong> Trained with Adam optimizer and <code>sparse_categorical_crossentropy</code> (or <code>binary_crossentropy</code>) loss with EarlyStopping and ModelCheckpoint callbacks.
+          </div>
+          <div class="method-item">
+            <strong>Evaluation Protocol:</strong> Stratified holdout evaluation reporting Accuracy, Macro Precision, Macro Recall, and Macro F1 to prevent majority-class bias.
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-6">
+        <h3 class="card-title">6. Known Limitations & Considerations</h3>
+        <ul class="limitations-list">
+          <li><strong>Domain Nuance:</strong> GloVe was trained on Wikipedia/Gigaword; heavy Indian colloquialisms or transliterated Hinglish phrases common in Flipkart reviews may fall out-of-vocabulary (OOV).</li>
+          <li><strong>Sarcasm & Mixed Sentiment:</strong> Complex reviews containing mixed sentiment (e.g., <em>"Great design but battery dies in 10 minutes"</em>) require attention mechanisms or aspect-based sentiment analysis for fine-grained decomposition.</li>
+          <li><strong>Sequence Length Truncation:</strong> Reviews exceeding 100 tokens are truncated, which could discard context positioned at the tail end of long reviews.</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div>Product Review Sentiment Analysis Using LSTM with GloVe Embeddings</div>
+      <div>Deep Learning &bull; NLP &bull; Flask &bull; Keras</div>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

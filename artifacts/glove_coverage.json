@@ -1,0 +1,19 @@
+{
+  "vocab_size": 11165,
+  "embedding_dim": 100,
+  "matched_words": 7795,
+  "out_of_vocab_count": 3369,
+  "coverage_percentage": 69.82,
+  "sample_missing_words": [
+    "<OOV>",
+    "flipkart",
+    "flipcart",
+    "awsome",
+    "thanku",
+    "filpkart",
+    "prodect",
+    "soundbar",
+    "awsm",
+    "livpure"
+  ]
+}
